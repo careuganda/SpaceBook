@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpaceBook — CAREuganda Space Rental</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:  #0d0f14; --bg2: #13161e; --bg3: #1a1e29; --bg4: #212636;
+  --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.14);
+  --text: #f2f4fc; --text2: #b8bdd4; --text3: #8e94b0;
+  --accent: #4f8ef7; --accent2: #7c5af7;
+  --green: #3ecf8e; --amber: #f5a623; --red: #f56565; --teal: #38c9c9;
+  --radius: 10px; --radius-lg: 14px; --radius-xl: 18px;
+  --font: 'DM Sans', sans-serif; --mono: 'DM Mono', monospace;
+  --shadow: 0 2px 16px rgba(0,0,0,0.35);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px;}
+
+/* ── Layout ── */
+.shell{display:flex;min-height:100vh;}
+.sidebar{width:220px;min-width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;}
+.sidebar-logo{padding:20px 20px 14px;border-bottom:1px solid var(--border);}
+.logo-mark{font-size:18px;font-weight:600;letter-spacing:-0.5px;}
+.logo-mark span{color:var(--accent);}
+.logo-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+.sidebar-user{padding:12px 16px;border-bottom:1px solid var(--border);}
+.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;flex-shrink:0;}
+.sidebar-nav{flex:1;padding:10px;overflow-y:auto;}
+.nav-label{font-size:10px;font-weight:700;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;padding:8px 10px 4px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius);cursor:pointer;color:var(--text2);font-size:13px;font-weight:500;transition:all 0.15s;border:1px solid transparent;margin-bottom:2px;}
+.nav-item:hover{background:var(--bg3);color:var(--text);}
+.nav-item.active{background:rgba(79,142,247,0.12);color:var(--accent);border-color:rgba(79,142,247,0.2);}
+.nav-icon{width:18px;text-align:center;font-size:15px;flex-shrink:0;}
+.nav-badge{margin-left:auto;background:var(--accent);color:#fff;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;}
+.nav-badge-amber{margin-left:auto;background:var(--amber);color:#000;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;}
+.sidebar-footer{padding:12px 16px;border-top:1px solid var(--border);}
+
+.main{margin-left:220px;flex:1;min-height:100vh;}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(13,15,20,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;}
+.topbar-title{font-size:16px;font-weight:500;}
+.topbar-sub{font-size:12px;color:var(--text3);margin-top:1px;}
+.page{padding:24px;max-width:1020px;}
+
+/* ── Cards ── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;transition:border-color 0.2s;}
+.card:hover{border-color:var(--border2);}
+.card-flat{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;}
+.metric-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;}
+.metric-lbl{font-size:11px;color:var(--text2);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:6px;font-weight:600;}
+.metric-num{font-size:24px;font-weight:600;font-family:var(--mono);line-height:1;}
+.metric-hint{font-size:11px;color:var(--text3);margin-top:5px;}
+
+/* ── Badges ── */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;border:1px solid transparent;}
+.badge-admin{background:rgba(124,90,247,0.15);color:#a78bf0;border-color:rgba(124,90,247,0.25);}
+.badge-manager{background:rgba(62,207,142,0.12);color:#3ecf8e;border-color:rgba(62,207,142,0.22);}
+.badge-staff{background:rgba(79,142,247,0.12);color:#4f8ef7;border-color:rgba(79,142,247,0.22);}
+.badge-guest{background:rgba(138,143,168,0.12);color:#8a8fa8;border-color:rgba(138,143,168,0.2);}
+.badge-available{background:rgba(62,207,142,0.12);color:#3ecf8e;border-color:rgba(62,207,142,0.22);}
+.badge-booked{background:rgba(245,101,101,0.12);color:#f56565;border-color:rgba(245,101,101,0.22);}
+.badge-active{background:rgba(79,142,247,0.12);color:#4f8ef7;border-color:rgba(79,142,247,0.22);}
+.badge-released{background:rgba(245,166,35,0.12);color:#f5a623;border-color:rgba(245,166,35,0.25);}
+.badge-completed{background:rgba(138,143,168,0.15);color:#b8bdd4;border-color:rgba(138,143,168,0.2);}
+.badge-paid{background:rgba(62,207,142,0.12);color:#3ecf8e;border-color:rgba(62,207,142,0.25);}
+.badge-pending{background:rgba(245,166,35,0.12);color:#f5a623;border-color:rgba(245,166,35,0.25);}
+.badge-invoice{background:rgba(79,142,247,0.12);color:#4f8ef7;border-color:rgba(79,142,247,0.25);}
+.agency-tag{display:inline-flex;align-items:center;gap:4px;background:rgba(124,90,247,0.12);color:#a78bf0;border:1px solid rgba(124,90,247,0.25);padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 16px;border-radius:var(--radius);border:1px solid var(--border2);background:transparent;color:var(--text);font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.btn:hover{background:var(--bg4);border-color:rgba(255,255,255,0.2);}
+.btn:active{transform:scale(0.97);}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+.btn-primary:hover{background:#6fa3fa;border-color:#6fa3fa;}
+.btn-danger{border-color:rgba(245,101,101,0.35);color:var(--red);}
+.btn-danger:hover{background:rgba(245,101,101,0.1);}
+.btn-amber{background:rgba(245,166,35,0.15);border-color:rgba(245,166,35,0.35);color:var(--amber);}
+.btn-amber:hover{background:rgba(245,166,35,0.25);}
+.btn-sm{padding:5px 11px;font-size:12px;}
+.btn-xs{padding:3px 9px;font-size:11px;}
+.btn:disabled{opacity:0.4;cursor:not-allowed;pointer-events:none;}
+
+/* ── Toggle buttons ── */
+.tog-btn{padding:7px 8px;font-size:12px;font-weight:500;border:1px solid var(--border2);border-radius:var(--radius);background:transparent;color:var(--text2);cursor:pointer;transition:all 0.15s;text-align:center;}
+.tog-btn:hover{background:var(--bg4);color:var(--text);}
+.tog-btn.active{background:rgba(79,142,247,0.15);color:var(--accent);border-color:rgba(79,142,247,0.4);font-weight:600;}
+.pay-btn{padding:9px 8px;font-size:12px;font-weight:500;border:1px solid var(--border2);border-radius:var(--radius);background:transparent;color:var(--text2);cursor:pointer;transition:all 0.15s;text-align:center;}
+.pay-btn:hover{background:var(--bg4);color:var(--text);}
+.pay-btn.active{background:rgba(62,207,142,0.12);color:var(--green);border-color:rgba(62,207,142,0.35);font-weight:600;}
+
+/* ── Forms ── */
+.form-group{margin-bottom:14px;}
+.form-group label{display:block;font-size:12px;color:var(--text2);margin-bottom:5px;font-weight:600;}
+input[type="date"],input[type="time"],input[type="number"],input[type="text"],input[type="email"],select,textarea{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:var(--font);font-size:13px;padding:8px 12px;outline:none;transition:border-color 0.15s,box-shadow 0.15s;}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,142,247,0.15);}
+select option{background:var(--bg3);}
+
+/* ── Grid helpers ── */
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;}
+.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+.flex{display:flex;align-items:center;gap:8px;}
+.flex-between{display:flex;align-items:center;justify-content:space-between;}
+
+/* ── Space tiles ── */
+.space-tile{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;}
+.space-tile::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity 0.2s;}
+.space-tile:hover{border-color:var(--border2);transform:translateY(-1px);box-shadow:var(--shadow);}
+.space-tile:hover::before{opacity:0.6;}
+.space-tile.selected{border-color:var(--accent);}
+.space-tile.selected::before{opacity:1;}
+.space-tile.unavailable{opacity:0.5;cursor:not-allowed;}
+.space-tile.unavailable:hover{transform:none;box-shadow:none;}
+.space-emoji{font-size:26px;margin-bottom:8px;}
+.space-name{font-size:13px;font-weight:600;margin-bottom:3px;}
+.space-meta{font-size:11px;color:var(--text2);line-height:1.5;}
+.space-cost{font-size:13px;font-weight:600;color:var(--amber);margin-top:6px;font-family:var(--mono);}
+
+/* ── Released tile highlight ── */
+.space-tile.released-back::before{background:linear-gradient(90deg,transparent,var(--amber),transparent);opacity:0.8;}
+.space-tile.released-back{border-color:rgba(245,166,35,0.35);}
+
+/* ── Booking / relist items ── */
+.booking-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;margin-bottom:10px;transition:border-color 0.15s;}
+.booking-item:hover{border-color:var(--border2);}
+.relist-item{background:var(--bg2);border:1px solid rgba(245,166,35,0.25);border-radius:var(--radius-lg);padding:16px 18px;margin-bottom:10px;}
+
+/* ── Fairness bar ── */
+.fairness-track{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;}
+.fairness-fill{height:100%;border-radius:2px;transition:width 0.5s;}
+
+/* ── Alloc row ── */
+.alloc-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+.alloc-row:last-child{border-bottom:none;}
+
+/* ── Info boxes ── */
+.info-box{background:rgba(79,142,247,0.08);border:1px solid rgba(79,142,247,0.18);border-radius:var(--radius);padding:10px 14px;font-size:12px;color:#7aaaf9;margin-bottom:14px;line-height:1.6;}
+.warn-box{background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.2);border-radius:var(--radius);padding:10px 14px;font-size:12px;color:var(--amber);margin-bottom:14px;line-height:1.6;}
+.err-box{background:rgba(245,101,101,0.08);border:1px solid rgba(245,101,101,0.2);border-radius:var(--radius);padding:10px 14px;font-size:12px;color:var(--red);margin-bottom:14px;line-height:1.6;}
+.success-box{background:rgba(62,207,142,0.08);border:1px solid rgba(62,207,142,0.2);border-radius:var(--radius);padding:10px 14px;font-size:12px;color:var(--green);margin-bottom:14px;line-height:1.6;}
+
+/* ── Modal ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.65);display:flex;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity 0.2s;}
+.modal-bg.open{opacity:1;pointer-events:all;}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-xl);padding:24px 26px;width:480px;max-width:95vw;max-height:92vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,0.5);transform:scale(0.96);transition:transform 0.2s;}
+.modal-bg.open .modal{transform:scale(1);}
+.modal-title{font-size:16px;font-weight:600;margin-bottom:4px;}
+.modal-sub{font-size:13px;color:var(--text3);margin-bottom:18px;}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;}
+.divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
+.section-title{font-size:11px;font-weight:700;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;}
+.empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:13px;}
+.empty-icon{font-size:32px;margin-bottom:10px;opacity:0.5;}
+
+/* ── Toast ── */
+#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--bg4);border:1px solid var(--border2);color:var(--text);padding:10px 20px;border-radius:var(--radius-lg);font-size:13px;font-weight:500;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity 0.25s,transform 0.25s;z-index:999;white-space:nowrap;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+@media(max-width:768px){
+  .sidebar{width:58px;min-width:58px;}
+  .sidebar-logo,.sidebar-user,.nav-item span,.nav-badge,.nav-badge-amber,.nav-label,.sidebar-footer{display:none;}
+  .nav-item{justify-content:center;padding:10px;}
+  .nav-icon{font-size:18px;}
+  .main{margin-left:58px;}
+  .metrics,.g4{grid-template-columns:repeat(2,1fr);}
+  .g3,.g2{grid-template-columns:1fr;}
+  .page{padding:14px;}
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.fade-in{animation:fadeIn 0.25s ease forwards;}
+</style>
+</head>
+<body>
+
+<div class="shell">
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">Space<span>Book</span></div>
+    <div class="logo-sub">CAREuganda · Space Rental</div>
+  </div>
+  <div class="sidebar-user">
+    <div class="flex">
+      <div class="user-avatar" id="sb-avatar">AK</div>
+      <div style="flex:1;overflow:hidden;margin-left:10px;">
+        <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="sb-name">Alex Kim</div>
+        <div><span class="badge badge-admin" id="sb-badge">admin</span></div>
+      </div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Booking</div>
+    <div class="nav-item active" onclick="navigate('book',this)"><span class="nav-icon">🗓</span><span>Book a Space</span></div>
+    <div class="nav-item" onclick="navigate('mybookings',this)"><span class="nav-icon">📋</span><span>My Bookings</span><span class="nav-badge" id="nb-count" style="display:none">0</span></div>
+    <div class="nav-label" style="margin-top:10px;">Released Spaces</div>
+    <div class="nav-item" onclick="navigate('released',this)"><span class="nav-icon">🔄</span><span>Released &amp; Available</span><span class="nav-badge-amber" id="nb-released" style="display:none">0</span></div>
+    <div class="nav-label" id="admin-label" style="margin-top:10px;display:none">Administration</div>
+    <div class="nav-item" id="nav-admin" onclick="navigate('admin',this)" style="display:none"><span class="nav-icon">⚙️</span><span>Admin Panel</span></div>
+    <div class="nav-item" id="nav-users" onclick="navigate('users',this)" style="display:none"><span class="nav-icon">👥</span><span>User Management</span></div>
+  </nav>
+  <div class="sidebar-footer">
+    <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">Switch user</div>
+    <select onchange="switchUser(this.value)" id="user-dd" style="font-size:12px;padding:5px 8px;margin:0;"></select>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<main class="main">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title" id="page-title">Book a Space</div>
+      <div class="topbar-sub" id="page-sub">Select and reserve your workspace</div>
+    </div>
+    <div style="font-size:12px;color:var(--text3);" id="topbar-right"></div>
+  </div>
+  <div class="page" style="padding-bottom:0;"><div class="metrics" id="metrics-bar"></div></div>
+  <div class="page fade-in" id="page-book"></div>
+  <div class="page fade-in" id="page-mybookings" style="display:none"></div>
+  <div class="page fade-in" id="page-released" style="display:none"></div>
+  <div class="page fade-in" id="page-admin" style="display:none"></div>
+  <div class="page fade-in" id="page-users" style="display:none"></div>
+</main>
+</div>
+
+<!-- ── BOOKING MODAL ── -->
+<div class="modal-bg" id="booking-modal">
+  <div class="modal" style="width:520px;">
+    <div class="modal-title" id="bm-title">Book a Space</div>
+    <div class="modal-sub" id="bm-sub">Complete your reservation details</div>
+
+    <div class="form-group">
+      <label>Booking period</label>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
+        <button class="tog-btn active" data-t="hourly"  onclick="setBkType('hourly',this)">Hourly</button>
+        <button class="tog-btn"        data-t="daily"   onclick="setBkType('daily',this)">Day</button>
+        <button class="tog-btn"        data-t="weekly"  onclick="setBkType('weekly',this)">Week</button>
+        <button class="tog-btn"        data-t="monthly" onclick="setBkType('monthly',this)">Month</button>
+      </div>
+    </div>
+
+    <div class="form-group" id="agency-grp" style="display:none;">
+      <label>Agency / Organisation name</label>
+      <input type="text" id="bk-agency" placeholder="e.g. CAREuganda, UNHCR" oninput="calcCostDisplay()">
+    </div>
+
+    <div class="g2">
+      <div class="form-group"><label>Start date</label><input type="date" id="bk-date" oninput="calcCostDisplay()"></div>
+      <div class="form-group" id="bk-time-grp"><label>Start time</label><input type="time" id="bk-time" value="08:00" oninput="calcCostDisplay()"></div>
+    </div>
+
+    <div class="form-group">
+      <label id="bk-qty-lbl">Number of hours</label>
+      <input type="number" id="bk-qty" min="1" max="30" value="1" oninput="calcCostDisplay()">
+    </div>
+
+    <div class="form-group">
+      <label>Currency</label>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
+        <button class="tog-btn active" data-c="USD" onclick="setCur('USD',this)">🇺🇸 USD</button>
+        <button class="tog-btn"        data-c="EUR" onclick="setCur('EUR',this)">🇪🇺 EUR</button>
+        <button class="tog-btn"        data-c="UGX" onclick="setCur('UGX',this)">🇺🇬 UGX</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Payment method</label>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;">
+        <button class="pay-btn active" data-p="card"    onclick="setPayM('card',this)">💳 Credit / Debit Card</button>
+        <button class="pay-btn"        data-p="mobile"  onclick="setPayM('mobile',this)">📱 Mobile Money</button>
+        <button class="pay-btn"        data-p="bank"    onclick="setPayM('bank',this)">🏦 Bank Transfer</button>
+        <button class="pay-btn"        data-p="invoice" onclick="setPayM('invoice',this)">🧾 Invoice</button>
+      </div>
+    </div>
+
+    <div id="pay-hint" class="info-box" style="margin-bottom:12px;"></div>
+
+    <!-- Cost box -->
+    <div class="card-flat" style="margin-bottom:14px;">
+      <div class="flex-between" style="margin-bottom:4px;"><span style="font-size:12px;color:var(--text2);">Rate</span><span style="font-size:12px;color:var(--text2);" id="bm-rate">—</span></div>
+      <div class="flex-between" style="margin-bottom:4px;"><span style="font-size:12px;color:var(--text2);">Period</span><span style="font-size:12px;color:var(--text2);" id="bm-period">—</span></div>
+      <div style="border-top:1px solid var(--border);margin:8px 0;"></div>
+      <div class="flex-between">
+        <span style="font-size:13px;font-weight:600;">Total due</span>
+        <span style="font-family:var(--mono);font-weight:700;font-size:18px;color:var(--amber);" id="bm-total">—</span>
+      </div>
+    </div>
+
+    <div id="bm-err"></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('booking-modal')">Cancel</button>
+      <button class="btn btn-primary" id="bm-confirm" onclick="confirmBooking()">Confirm booking</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAYMENT CONFIRMATION MODAL ── -->
+<div class="modal-bg" id="payment-modal">
+  <div class="modal" style="width:460px;">
+    <div style="text-align:center;margin-bottom:16px;">
+      <div style="font-size:36px;margin-bottom:8px;" id="pc-icon">💳</div>
+      <div class="modal-title" id="pc-title">Complete Your Payment</div>
+      <div class="modal-sub">Your booking is confirmed. Follow the instructions below.</div>
+    </div>
+    <div id="pc-body"></div>
+    <div class="modal-footer" style="justify-content:center;">
+      <button class="btn btn-primary" onclick="closeModal('payment-modal');renderAll();navigate('mybookings',document.querySelectorAll('.nav-item')[1]);">Got it — view my bookings</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── RELEASE MODAL ── -->
+<div class="modal-bg" id="release-modal">
+  <div class="modal" style="width:440px;">
+    <div style="font-size:28px;text-align:center;margin-bottom:8px;">🔄</div>
+    <div class="modal-title" style="text-align:center;">Release this booking?</div>
+    <div class="modal-sub" style="text-align:center;" id="rel-sub">The space will be returned to CAREuganda and made available for rebooking.</div>
+    <div class="warn-box" style="margin:14px 0;">A <strong>70% refund</strong> will be processed to your original payment method. CAREuganda retains 30% as an administrative fee.</div>
+    <input type="hidden" id="rel-bid">
+    <div id="rel-refund-line" style="text-align:center;font-size:14px;margin-bottom:14px;"></div>
+    <div class="modal-footer" style="justify-content:center;gap:12px;">
+      <button class="btn" onclick="closeModal('release-modal')">Keep booking</button>
+      <button class="btn btn-amber" onclick="confirmRelease()">Yes, release space</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── ADD / EDIT USER MODAL ── -->
+<div class="modal-bg" id="user-modal">
+  <div class="modal" style="width:460px;">
+    <div class="modal-title" id="um-title">Add New User</div>
+    <div class="modal-sub" id="um-sub">Fill in the details below</div>
+    <input type="hidden" id="um-id">
+    <div class="form-group"><label>Full name</label><input type="text" id="um-name" placeholder="e.g. Jane Doe"></div>
+    <div class="form-group"><label>Email address</label><input type="email" id="um-email" placeholder="e.g. jane@organisation.com"></div>
+    <div class="form-group"><label>Role</label>
+      <select id="um-role">
+        <option value="guest">Guest</option>
+        <option value="staff">Staff</option>
+        <option value="manager">Manager</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+    <div id="um-err"></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('user-modal')">Cancel</button>
+      <button class="btn btn-primary" id="um-save" onclick="saveUser()">Add User</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── INVITE MODAL ── -->
+<div class="modal-bg" id="invite-modal">
+  <div class="modal" style="width:480px;">
+    <div style="text-align:center;margin-bottom:18px;">
+      <div style="font-size:32px;margin-bottom:8px;">🎉</div>
+      <div class="modal-title" id="inv-name">User Added!</div>
+      <div class="modal-sub">Share these credentials securely. This will not be shown again.</div>
+    </div>
+    <div class="card-flat" style="margin-bottom:12px;">
+      <div style="font-size:11px;font-weight:700;color:var(--text2);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">Invite Link</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div id="inv-link" style="flex:1;font-family:var(--mono);font-size:12px;color:var(--accent);background:var(--bg4);padding:8px 10px;border-radius:var(--radius);word-break:break-all;border:1px solid var(--border2);"></div>
+        <button class="btn btn-sm" onclick="copyText('inv-link','Link copied!')">Copy</button>
+      </div>
+    </div>
+    <div class="card-flat" style="margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:700;color:var(--text2);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">Temporary Password</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div id="inv-pwd" style="flex:1;font-family:var(--mono);font-size:18px;font-weight:600;color:var(--amber);background:var(--bg4);padding:10px 14px;border-radius:var(--radius);letter-spacing:0.15em;border:1px solid var(--border2);"></div>
+        <button class="btn btn-sm" onclick="copyText('inv-pwd','Password copied!')">Copy</button>
+      </div>
+    </div>
+    <div class="warn-box">⚠ The temporary password must be changed on first login.</div>
+    <div class="modal-footer" style="justify-content:space-between;">
+      <div id="inv-badge"></div>
+      <button class="btn btn-primary" onclick="closeModal('invite-modal');renderUsers();">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── DELETE USER MODAL ── -->
+<div class="modal-bg" id="delete-modal">
+  <div class="modal" style="width:400px;">
+    <div style="font-size:28px;text-align:center;margin-bottom:8px;">⚠️</div>
+    <div class="modal-title" style="text-align:center;">Remove User?</div>
+    <div class="modal-sub" style="text-align:center;" id="del-sub"></div>
+    <input type="hidden" id="del-uid">
+    <div class="modal-footer" style="justify-content:center;gap:12px;">
+      <button class="btn" onclick="closeModal('delete-modal')">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmDeleteUser()">Yes, remove</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+
+// ── SPACES ──────────────────────────────────────────────────
+const SPACES = [
+  { id:'s1', name:'Focus Pod | Ops',        type:'focus',     cap:4,  icon:'🎯', desc:'Office space · 4 seats',                  rateUSD:10 },
+  { id:'s2', name:'Focus Pod | PD',         type:'focus',     cap:4,  icon:'🎯', desc:'Office space · 4 seats',                  rateUSD:10 },
+  { id:'s3', name:'Focus Pod | CD',         type:'focus',     cap:7,  icon:'🎯', desc:'1 workstation + 6-seat meeting area',      rateUSD:15 },
+  { id:'s4', name:'Meeting Room | Toto',    type:'meeting',   cap:1,  icon:'💼', desc:'Private meeting · 1 seat',                rateUSD:20 },
+  { id:'s5', name:'Meeting Room | INZIKURU',type:'meeting',   cap:1,  icon:'💼', desc:'Private meeting · 1 seat',                rateUSD:20 },
+  { id:'s6', name:'Meeting Room | Aziza',   type:'meeting',   cap:1,  icon:'💼', desc:'Private meeting · 1 seat',                rateUSD:20 },
+  { id:'s7', name:'Thought Leadership Room',type:'collab',    cap:7,  icon:'💡', desc:'Ideas, strategy & leadership · 7 seats',  rateUSD:35 },
+  { id:'s8', name:'Boardroom',              type:'boardroom', cap:10, icon:'🏛️', desc:'Executive meetings · 10 seats',           rateUSD:60 },
+];
+
+// ── ROLES ────────────────────────────────────────────────────
+const ROLE_CFG = {
+  admin:   { limit:999, access:['focus','meeting','collab','boardroom'] },
+  manager: { limit:5,   access:['focus','meeting','collab','boardroom'] },
+  staff:   { limit:3,   access:['focus','meeting','collab'] },
+  guest:   { limit:1,   access:['focus','collab'] },
+};
+
+// ── CURRENCIES ───────────────────────────────────────────────
+const CURRENCIES = {
+  USD: { symbol:'$',   rate:1,     name:'US Dollar' },
+  EUR: { symbol:'€',   rate:0.92,  name:'Euro' },
+  UGX: { symbol:'USh', rate:3800,  name:'Ugandan Shilling' },
+};
+
+// ── BOOKING TYPES ────────────────────────────────────────────
+const BK_TYPES = {
+  hourly:  { label:'Hour',  plural:'hours',  mult:1    },
+  daily:   { label:'Day',   plural:'days',   mult:8    },
+  weekly:  { label:'Week',  plural:'weeks',  mult:40   },
+  monthly: { label:'Month', plural:'months', mult:160  },
+};
+
+// ── PAYMENT CONFIGS ──────────────────────────────────────────
+const PAY_CFG = {
+  card:    { icon:'💳', label:'Credit / Debit Card', status:'pending',
+             hint:'You will be redirected to a secure card payment page after confirming. Your booking is reserved for 15 minutes.' },
+  mobile:  { icon:'📱', label:'Mobile Money',        status:'pending',
+             hint:'Send via MTN MoMo or Airtel Money to <strong style="color:var(--text)">+256 700 000 000 (CAREuganda)</strong>. Use your Booking ID as the reference.' },
+  bank:    { icon:'🏦', label:'Bank Transfer',       status:'pending',
+             hint:'Transfer to <strong style="color:var(--text)">Stanbic Bank · A/C 9030012345678 · CAREuganda</strong>. Use your Booking ID as reference. Allow 1–2 business days.' },
+  invoice: { icon:'🧾', label:'Invoice (Pay Later)', status:'invoice',
+             hint:'An invoice will be sent to your registered email. Payment is due within <strong style="color:var(--text)">30 days</strong> of the booking date.' },
+};
+
+// ── USERS ────────────────────────────────────────────────────
+let users = [
+  { id:'u1', name:'Alex Kim',   role:'admin',   avatar:'AK', email:'alex@care.org',  joined:'2025-01-10' },
+  { id:'u2', name:'Sam Chen',   role:'manager', avatar:'SC', email:'sam@care.org',   joined:'2025-03-01' },
+  { id:'u3', name:'Priya Das',  role:'staff',   avatar:'PD', email:'priya@care.org', joined:'2025-04-05' },
+  { id:'u4', name:'Jordan Lee', role:'guest',   avatar:'JL', email:'jordan@ngo.org', joined:'2026-01-20' },
+];
+
+// ── BOOKINGS ─────────────────────────────────────────────────
+let bookings = [
+  { id:'BK-100001', userId:'u2', spaceId:'s3', date:'2026-04-15', time:'09:00', duration:2, bkType:'hourly', currency:'USD', amount:30,  agency:'UNHCR', payMethod:'card',    payStatus:'paid',    status:'active',    bookedAt:'2026-04-10' },
+  { id:'BK-100002', userId:'u3', spaceId:'s1', date:'2026-04-14', time:'14:00', duration:1, bkType:'hourly', currency:'UGX', amount:38000,agency:'',      payMethod:'mobile',  payStatus:'pending', status:'active',    bookedAt:'2026-04-13' },
+  { id:'BK-100003', userId:'u1', spaceId:'s8', date:'2026-04-10', time:'10:00', duration:1, bkType:'daily',  currency:'USD', amount:480, agency:'WHO',    payMethod:'invoice', payStatus:'invoice', status:'completed', bookedAt:'2026-04-08' },
+];
+
+// ── RELEASED SPACES ───────────────────────────────────────────
+// Spaces released back to CARE, ready to rebook
+let releasedPool = [];
+
+// ── STATE ─────────────────────────────────────────────────────
+let currentUser = users[0];
+let selectedSpaceId = null;
+let currentPage = 'book';
+let activeBkType = 'hourly';
+let activeCurrency = 'USD';
+let activePayMethod = 'card';
+
+// ── HELPERS ──────────────────────────────────────────────────
+function fairness(user) {
+  const lim = ROLE_CFG[user.role].limit;
+  if (lim === 999) return 1;
+  const active = bookings.filter(b => b.userId === user.id && b.status === 'active').length;
+  return Math.max(0, Math.min(1, 1 - (active / lim) * 0.55));
+}
+function fairnessColor(f) { return f>=0.75?'var(--green)':f>=0.45?'var(--amber)':'var(--red)'; }
+function priorityLabel(f) { return f>=0.75?'High':f>=0.45?'Medium':'Low'; }
+function activeBookings(uid) { return bookings.filter(b => b.userId===uid && b.status==='active'); }
+function isBooked(sid) { return bookings.some(b => b.spaceId===sid && b.status==='active'); }
+function isReleased(sid) { return releasedPool.some(r => r.spaceId===sid && r.status==='available'); }
+function today() { return new Date().toISOString().split('T')[0]; }
+function fmtMoney(amount, cur) {
+  const c = CURRENCIES[cur];
+  if (cur==='UGX') return `${c.symbol} ${Math.round(amount).toLocaleString()}`;
+  return `${c.symbol}${Number(amount).toFixed(2)}`;
+}
+function calcAmount(space, bkType, qty, cur) {
+  const mult = BK_TYPES[bkType].mult;
+  const usd = space.rateUSD * mult * qty;
+  return usd * CURRENCIES[cur].rate;
+}
+function makeAvatar(name) {
+  const p = name.trim().split(' ');
+  return p.length>=2 ? (p[0][0]+p[p.length-1][0]).toUpperCase() : name.slice(0,2).toUpperCase();
+}
+function genPassword() {
+  const c='ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789@#!';
+  return Array.from({length:10},()=>c[Math.floor(Math.random()*c.length)]).join('');
+}
+function genInviteLink(uid) {
+  return `${location.origin}${location.pathname}?invite=${btoa(uid+':'+Date.now())}`;
+}
+function genBookingId() { return 'BK-'+(Date.now().toString().slice(-6)); }
+function toast(msg, dur=2600) {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),dur);
+}
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function copyText(elId, msg) {
+  navigator.clipboard.writeText(document.getElementById(elId).textContent)
+    .then(()=>toast(msg)).catch(()=>toast('Select text manually to copy'));
+}
+
+// ── NAVIGATION ───────────────────────────────────────────────
+const PAGE_META = {
+  book:       { title:'Book a Space',         sub:'Browse and reserve available workspaces' },
+  mybookings: { title:'My Bookings',          sub:'Manage your active reservations' },
+  released:   { title:'Released & Available', sub:'Spaces returned to CARE — available for rebooking' },
+  admin:      { title:'Admin Panel',          sub:'Overview, history and payment tracking' },
+  users:      { title:'User Management',      sub:'Add, edit and remove system users' },
+};
+
+function navigate(page, el) {
+  currentPage = page;
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  ['book','mybookings','released','admin','users'].forEach(p=>{
+    document.getElementById('page-'+p).style.display = p===page?'':'none';
+  });
+  document.getElementById('page-title').textContent = PAGE_META[page].title;
+  document.getElementById('page-sub').textContent = PAGE_META[page].sub;
+  if (page==='book')       renderBook();
+  if (page==='mybookings') renderMyBookings();
+  if (page==='released')   renderReleased();
+  if (page==='admin')      renderAdmin();
+  if (page==='users')      renderUsers();
+}
+
+// ── SIDEBAR & METRICS ─────────────────────────────────────────
+function renderSidebar() {
+  const u = currentUser;
+  document.getElementById('sb-avatar').textContent = u.avatar;
+  document.getElementById('sb-name').textContent = u.name;
+  const badge = document.getElementById('sb-badge');
+  badge.textContent = u.role; badge.className = `badge badge-${u.role}`;
+  const isAdmin = u.role==='admin';
+  document.getElementById('nav-admin').style.display = isAdmin?'flex':'none';
+  document.getElementById('nav-users').style.display = isAdmin?'flex':'none';
+  document.getElementById('admin-label').style.display = isAdmin?'block':'none';
+  const myCount = activeBookings(u.id).length;
+  const nb = document.getElementById('nb-count');
+  nb.textContent=myCount; nb.style.display=myCount>0?'':'none';
+  const relCount = releasedPool.filter(r=>r.status==='available').length;
+  const rb = document.getElementById('nb-released');
+  rb.textContent=relCount; rb.style.display=relCount>0?'':'none';
+  const dd = document.getElementById('user-dd');
+  dd.innerHTML = users.map(uu=>`<option value="${uu.id}" ${uu.id===u.id?'selected':''}>${uu.name} (${uu.role})</option>`).join('');
+}
+
+function renderMetrics() {
+  const u = currentUser;
+  const f = fairness(u);
+  const myActive = activeBookings(u.id).length;
+  const lim = ROLE_CFG[u.role].limit;
+  const relCount = releasedPool.filter(r=>r.status==='available').length;
+  document.getElementById('metrics-bar').innerHTML = `
+    <div class="metric-card">
+      <div class="metric-lbl">Active Bookings</div>
+      <div class="metric-num">${myActive}<span style="font-size:14px;color:var(--text3);"> / ${lim===999?'∞':lim}</span></div>
+      <div class="metric-hint">Role: ${u.role}</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-lbl">Fairness Score</div>
+      <div class="metric-num" style="color:${fairnessColor(f)}">${Math.round(f*100)}%</div>
+      <div class="metric-hint">Priority: ${priorityLabel(f)}</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-lbl">Released Spaces</div>
+      <div class="metric-num" style="color:${relCount>0?'var(--amber)':'var(--text3)'}">${relCount}</div>
+      <div class="metric-hint">Available to rebook</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-lbl">Role Access</div>
+      <div class="metric-num" style="font-size:16px;">${ROLE_CFG[u.role].access.length} types</div>
+      <div class="metric-hint">${ROLE_CFG[u.role].access.join(', ')}</div>
+    </div>`;
+}
+
+// ── PAGE: BOOK ────────────────────────────────────────────────
+function renderBook() {
+  const u = currentUser;
+  const allowed = ROLE_CFG[u.role].access;
+  const myActive = activeBookings(u.id).length;
+  const atLimit = myActive >= ROLE_CFG[u.role].limit;
+  let html = '';
+  if (atLimit && ROLE_CFG[u.role].limit!==999) {
+    html += `<div class="err-box">⚠ You've reached your booking limit (${ROLE_CFG[u.role].limit}). Release an existing booking to free up a slot.</div>`;
+  }
+  // Show released spaces banner
+  const relSpaces = releasedPool.filter(r=>r.status==='available');
+  if (relSpaces.length>0) {
+    html += `<div class="warn-box" style="cursor:pointer;" onclick="navigate('released',document.querySelectorAll('.nav-item')[2])">
+      🔄 <strong>${relSpaces.length} released space${relSpaces.length>1?'s are':' is'} available</strong> at a discounted rate — <span style="text-decoration:underline;">view now →</span>
+    </div>`;
+  }
+  html += `<div class="section-title">Available spaces</div><div class="g4" style="margin-bottom:24px;">`;
+  SPACES.forEach(s => {
+    if (!allowed.includes(s.type)) return;
+    const booked = isBooked(s.id);
+    const notAvail = booked || (atLimit && ROLE_CFG[u.role].limit!==999);
+    const sel = selectedSpaceId===s.id;
+    html += `<div class="space-tile ${sel?'selected':''} ${notAvail?'unavailable':''}"
+      onclick="${notAvail?'':` selectSpace('${s.id}')`}" role="button" tabindex="0">
+      <div class="space-emoji">${s.icon}</div>
+      <div class="space-name">${s.name}</div>
+      <div class="space-meta">${s.desc}</div>
+      <div class="space-cost">$${s.rateUSD}/hr</div>
+      <div style="margin-top:8px;"><span class="badge ${booked?'badge-booked':'badge-available'}">${booked?'booked':'available'}</span></div>
+    </div>`;
+  });
+  html += `</div>`;
+  if (!allowed.includes('boardroom')) {
+    html += `<div class="info-box">Some spaces are restricted by your role (${u.role}). Contact an admin for elevated access.</div>`;
+  }
+  document.getElementById('page-book').innerHTML = html;
+}
+
+// ── BOOKING MODAL ─────────────────────────────────────────────
+function selectSpace(id, isRelease=false, relId=null) {
+  selectedSpaceId = id;
+  activeBkType = 'hourly'; activeCurrency = 'USD'; activePayMethod = 'card';
+  const space = SPACES.find(s=>s.id===id);
+  document.getElementById('bm-title').textContent = `Book — ${space.name}`;
+  document.getElementById('bm-sub').textContent = `${space.icon} ${space.desc} · Cap: ${space.cap}`;
+  document.getElementById('bk-date').value = today();
+  document.getElementById('bk-qty').value = 1;
+  document.getElementById('bk-agency').value = '';
+  document.getElementById('bm-err').innerHTML = '';
+  document.querySelectorAll('.tog-btn[data-t]').forEach(b=>b.classList.toggle('active',b.dataset.t==='hourly'));
+  document.querySelectorAll('.tog-btn[data-c]').forEach(b=>b.classList.toggle('active',b.dataset.c==='USD'));
+  document.querySelectorAll('.pay-btn').forEach(b=>b.classList.toggle('active',b.dataset.p==='card'));
+  document.getElementById('agency-grp').style.display='none';
+  document.getElementById('bk-time-grp').style.display='';
+  document.getElementById('bk-qty-lbl').textContent='Number of hours';
+  // Store relist context
+  document.getElementById('bm-confirm').dataset.relId = relId||'';
+  updatePayHint(); calcCostDisplay();
+  openModal('booking-modal');
+  renderBook();
+}
+
+function setBkType(type, btn) {
+  activeBkType = type;
+  document.querySelectorAll('.tog-btn[data-t]').forEach(b=>b.classList.toggle('active',b.dataset.t===type));
+  const cfg = BK_TYPES[type];
+  document.getElementById('bk-qty-lbl').textContent = `Number of ${cfg.plural}`;
+  document.getElementById('bk-qty').value = 1;
+  document.getElementById('agency-grp').style.display = type!=='hourly'?'':'none';
+  document.getElementById('bk-time-grp').style.display = (type==='hourly'||type==='daily')?'':'none';
+  calcCostDisplay();
+}
+function setCur(cur, btn) {
+  activeCurrency = cur;
+  document.querySelectorAll('.tog-btn[data-c]').forEach(b=>b.classList.toggle('active',b.dataset.c===cur));
+  calcCostDisplay();
+}
+function setPayM(pm, btn) {
+  activePayMethod = pm;
+  document.querySelectorAll('.pay-btn').forEach(b=>b.classList.toggle('active',b.dataset.p===pm));
+  updatePayHint();
+}
+function updatePayHint() {
+  const cfg = PAY_CFG[activePayMethod];
+  document.getElementById('pay-hint').innerHTML = `${cfg.icon} <strong style="color:var(--text)">${cfg.label}:</strong> ${cfg.hint}`;
+}
+function calcCostDisplay() {
+  const space = SPACES.find(s=>s.id===selectedSpaceId);
+  if (!space) return;
+  const qty = parseInt(document.getElementById('bk-qty').value)||1;
+  const amount = calcAmount(space, activeBkType, qty, activeCurrency);
+  const cfg = BK_TYPES[activeBkType];
+  document.getElementById('bm-rate').textContent = `${fmtMoney(space.rateUSD*BK_TYPES[activeBkType].mult, 'USD')} / ${cfg.label.toLowerCase()} (USD base)`;
+  document.getElementById('bm-period').textContent = `${qty} ${qty===1?cfg.label:cfg.plural}`;
+  document.getElementById('bm-total').textContent = fmtMoney(amount, activeCurrency);
+}
+
+function confirmBooking() {
+  const space = SPACES.find(s=>s.id===selectedSpaceId);
+  const qty = parseInt(document.getElementById('bk-qty').value)||1;
+  const amount = calcAmount(space, activeBkType, qty, activeCurrency);
+  const date = document.getElementById('bk-date').value;
+  const time = document.getElementById('bk-time').value||'08:00';
+  const agency = document.getElementById('bk-agency').value.trim();
+  const relId = document.getElementById('bm-confirm').dataset.relId;
+  const cfg = BK_TYPES[activeBkType];
+  const bkId = genBookingId();
+
+  // Mark released slot as taken if rebooking
+  if (relId) {
+    const rel = releasedPool.find(r=>r.id===relId);
+    if (rel) rel.status = 'rebooked';
+  }
+
+  const newBk = {
+    id: bkId, userId: currentUser.id, spaceId: space.id,
+    date, time, duration: qty, bkType: activeBkType,
+    currency: activeCurrency, amount, agency,
+    payMethod: activePayMethod, payStatus: PAY_CFG[activePayMethod].status,
+    status: 'active', bookedAt: today(),
+  };
+  bookings.push(newBk);
+  currentUser.bookingsCount = (currentUser.bookingsCount||0)+1;
+  closeModal('booking-modal');
+  selectedSpaceId = null;
+
+  // Payment confirmation popup
+  const pc = PAY_CFG[activePayMethod];
+  document.getElementById('pc-icon').textContent = pc.icon;
+  document.getElementById('pc-title').textContent = activePayMethod==='invoice'?'Invoice Requested':'Complete Your Payment';
+  document.getElementById('pc-body').innerHTML = `
+    <div class="card-flat" style="margin-bottom:12px;">
+      <div class="flex-between" style="margin-bottom:5px;"><span style="font-size:12px;color:var(--text2);">Booking ID</span><span style="font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent);">${bkId}</span></div>
+      <div class="flex-between" style="margin-bottom:5px;"><span style="font-size:12px;color:var(--text2);">Room</span><span style="font-size:13px;font-weight:500;">${space.icon} ${space.name}</span></div>
+      <div class="flex-between" style="margin-bottom:5px;"><span style="font-size:12px;color:var(--text2);">Period</span><span style="font-size:13px;">${qty} ${qty===1?cfg.label:cfg.plural} · ${date}</span></div>
+      ${agency?`<div class="flex-between" style="margin-bottom:5px;"><span style="font-size:12px;color:var(--text2);">Agency</span><span class="agency-tag">🏢 ${agency}</span></div>`:''}
+      <div style="border-top:1px solid var(--border);margin:8px 0;"></div>
+      <div class="flex-between"><span style="font-size:13px;font-weight:600;">Amount due</span><span style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--amber);">${fmtMoney(amount,activeCurrency)}</span></div>
+    </div>
+    <div class="info-box">${pc.icon} ${pc.hint.replace('your Booking ID',`<strong style="color:var(--accent)">${bkId}</strong>`)}</div>`;
+  openModal('payment-modal');
+  renderAll();
+}
+
+// ── PAGE: MY BOOKINGS ─────────────────────────────────────────
+function renderMyBookings() {
+  const mine = activeBookings(currentUser.id);
+  let html = '';
+  if (!mine.length) {
+    html = `<div class="empty"><div class="empty-icon">📋</div>No active bookings.<br>Go to "Book a Space" to get started.</div>`;
+  } else {
+    html += `<div class="section-title">Active reservations (${mine.length})</div>`;
+    mine.forEach(b => {
+      const space = SPACES.find(s=>s.id===b.spaceId);
+      const cfg = BK_TYPES[b.bkType||'hourly'];
+      const periodStr = `${b.duration} ${b.duration===1?cfg.label:cfg.plural}`;
+      html += `<div class="booking-item">
+        <div class="flex-between" style="margin-bottom:10px;">
+          <div class="flex" style="gap:12px;">
+            <span style="font-size:26px;">${space.icon}</span>
+            <div>
+              <div style="font-weight:600;font-size:15px;">${space.name}</div>
+              <div style="font-size:12px;color:var(--text2);">${space.desc}</div>
+            </div>
+          </div>
+          <div class="flex" style="gap:5px;flex-wrap:wrap;justify-content:flex-end;">
+            ${b.agency?`<span class="agency-tag">🏢 ${b.agency}</span>`:''}
+            <span class="badge badge-active">active</span>
+          </div>
+        </div>
+        <div class="card-flat" style="margin-bottom:12px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center;">
+          <div><div style="font-size:10px;color:var(--text3);font-weight:600;margin-bottom:2px;">DATE</div><div style="font-size:12px;font-weight:500;">${b.date}</div></div>
+          <div><div style="font-size:10px;color:var(--text3);font-weight:600;margin-bottom:2px;">PERIOD</div><div style="font-size:12px;font-weight:500;">${periodStr}</div></div>
+          <div><div style="font-size:10px;color:var(--text3);font-weight:600;margin-bottom:2px;">AMOUNT</div><div style="font-size:12px;font-weight:500;color:var(--amber);">${fmtMoney(b.amount,b.currency)}</div></div>
+          <div><div style="font-size:10px;color:var(--text3);font-weight:600;margin-bottom:2px;">PAYMENT</div><div style="font-size:12px;font-weight:500;">${PAY_CFG[b.payMethod]?.icon||'—'}</div></div>
+        </div>
+        <div class="flex-between">
+          <span style="font-size:12px;color:var(--text3);">Booking ID: <span style="font-family:var(--mono);color:var(--accent);">${b.id}</span></span>
+          <button class="btn btn-sm btn-amber" onclick="openRelease('${b.id}')">Release space 🔄</button>
+        </div>
+      </div>`;
+    });
+  }
+  html += `<hr class="divider">
+  <div class="section-title">Release policy</div>
+  <div class="card-flat" style="font-size:12px;color:var(--text2);line-height:1.8;">
+    If you no longer need a space, <strong style="color:var(--text)">release it back to CAREuganda</strong> instead of cancelling. 
+    CAREuganda re-lists the space for another agency to book. You receive a <strong style="color:var(--text)">70% refund</strong> — 
+    CAREuganda retains 30% as an admin fee. This keeps the space active and earns revenue for CARE.
+  </div>`;
+  document.getElementById('page-mybookings').innerHTML = html;
+}
+
+// ── RELEASE ───────────────────────────────────────────────────
+function openRelease(bid) {
+  const b = bookings.find(x=>x.id===bid);
+  const space = SPACES.find(s=>s.id===b.spaceId);
+  const refund = b.amount * 0.7;
+  document.getElementById('rel-bid').value = bid;
+  document.getElementById('rel-sub').textContent = `Release "${space.name}" back to CAREuganda?`;
+  document.getElementById('rel-refund-line').innerHTML =
+    `You paid <strong style="color:var(--amber);">${fmtMoney(b.amount,b.currency)}</strong> — 
+     you'll receive <strong style="color:var(--green);">${fmtMoney(refund,b.currency)}</strong> back (70% refund).`;
+  openModal('release-modal');
+}
+
+function confirmRelease() {
+  const bid = document.getElementById('rel-bid').value;
+  const b = bookings.find(x=>x.id===bid);
+  const space = SPACES.find(s=>s.id===b.spaceId);
+  const refund = b.amount * 0.7;
+  b.status = 'released';
+  b.payStatus = 'refunded';
+
+  // Add to released pool — CAREuganda re-lists at 85% of original rate
+  releasedPool.push({
+    id: 'REL-'+Date.now().toString().slice(-5),
+    spaceId: b.spaceId,
+    originalBookingId: bid,
+    date: b.date, time: b.time, duration: b.duration, bkType: b.bkType,
+    discountPct: 15,
+    status: 'available',
+    releasedAt: today(),
+    releasedBy: currentUser.name,
+    releasedByAgency: b.agency||currentUser.name,
+  });
+
+  closeModal('release-modal');
+  toast(`✓ Space released · ${fmtMoney(refund,b.currency)} refund initiated`);
+  renderAll();
+  renderMyBookings();
+}
+
+// ── PAGE: RELEASED & AVAILABLE ────────────────────────────────
+function renderReleased() {
+  const avail = releasedPool.filter(r=>r.status==='available');
+  let html = '';
+
+  html += `<div class="success-box">🔄 These spaces were released by agencies and returned to CAREuganda. They are available at a <strong>discounted rate</strong>. Booking one earns revenue directly for CARE.</div>`;
+
+  if (!avail.length) {
+    html += `<div class="empty"><div class="empty-icon">🔄</div>No released spaces right now.<br>Check back later or book directly from the main listing.</div>`;
+  } else {
+    html += `<div class="section-title">Available released spaces (${avail.length})</div>`;
+    avail.forEach(r => {
+      const space = SPACES.find(s=>s.id===r.spaceId);
+      const cfg = BK_TYPES[r.bkType||'hourly'];
+      const discountedRate = space.rateUSD * (1 - r.discountPct/100);
+      const periodStr = `${r.duration} ${r.duration===1?cfg.label:cfg.plural}`;
+      html += `<div class="relist-item">
+        <div class="flex-between" style="margin-bottom:10px;">
+          <div class="flex" style="gap:12px;">
+            <span style="font-size:28px;">${space.icon}</span>
+            <div>
+              <div style="font-weight:600;font-size:15px;">${space.name}</div>
+              <div style="font-size:12px;color:var(--text2);">${space.desc} · ${periodStr}</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:2px;">📅 ${r.date}${r.time?' · '+r.time:''} · Released by ${r.releasedByAgency}</div>
+            </div>
+          </div>
+          <span class="badge badge-released">Released</span>
+        </div>
+        <div class="card-flat" style="margin-bottom:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;">
+          <div><div style="font-size:10px;color:var(--text3);font-weight:600;margin-bottom:2px;">ORIGINAL RATE</div><div style="font-size:12px;font-weight:500;text-decoration:line-through;color:var(--text3);">$${space.rateUSD}/hr</div></div>
+          <div><div style="font-size:10px;color:var(--text3);font-weight:600;margin-bottom:2px;">DISCOUNTED RATE</div><div style="font-size:13px;font-weight:600;color:var(--green);">$${discountedRate.toFixed(0)}/hr</div></div>
+          <div><div style="font-size:10px;color:var(--text3);font-weight:600;margin-bottom:2px;">DISCOUNT</div><div style="font-size:13px;font-weight:600;color:var(--amber);">${r.discountPct}% off</div></div>
+        </div>
+        <div class="flex-between">
+          <span style="font-size:12px;color:var(--text3);">All revenue from this booking goes to CAREuganda</span>
+          <button class="btn btn-sm btn-primary" onclick="bookReleased('${r.id}','${space.id}')">Book this slot →</button>
+        </div>
+      </div>`;
+    });
+  }
+
+  html += `<hr class="divider"><div class="section-title">How released spaces work</div>
+  <div class="g3">
+    <div class="card-flat" style="font-size:12px;color:var(--text2);line-height:1.7;"><div style="font-size:18px;margin-bottom:6px;">🔄</div><strong style="color:var(--text);">Agency releases</strong><br>An agency no longer needs their booking and releases it back to CAREuganda. They receive a 70% refund.</div>
+    <div class="card-flat" style="font-size:12px;color:var(--text2);line-height:1.7;"><div style="font-size:18px;margin-bottom:6px;">🏷️</div><strong style="color:var(--text);">CARE re-lists</strong><br>The space appears here at a 15% discount, making it attractive for other agencies to book quickly.</div>
+    <div class="card-flat" style="font-size:12px;color:var(--text2);line-height:1.7;"><div style="font-size:18px;margin-bottom:6px;">💰</div><strong style="color:var(--text);">CARE earns</strong><br>The new agency pays CAREuganda directly. Revenue stays with CARE — no peer-to-peer credit transfer.</div>
+  </div>`;
+
+  document.getElementById('page-released').innerHTML = html;
+}
+
+function bookReleased(relId, spaceId) {
+  // Pre-fill the booking modal for this released slot
+  selectSpace(spaceId, true, relId);
+}
+
+// ── PAGE: ADMIN ───────────────────────────────────────────────
+function renderAdmin() {
+  if (currentUser.role!=='admin') {
+    document.getElementById('page-admin').innerHTML=`<div class="empty"><div class="empty-icon">🔒</div>Admin access required.</div>`;
+    return;
+  }
+
+  const allBk = bookings;
+  const paid = allBk.filter(b=>b.payStatus==='paid');
+  const pending = allBk.filter(b=>b.payStatus==='pending'||b.payStatus==='invoice');
+  const totalUSD = paid.reduce((s,b)=>s+(b.amount/CURRENCIES[b.currency].rate),0);
+  const pendingUSD = pending.reduce((s,b)=>s+(b.amount/CURRENCIES[b.currency].rate),0);
+
+  let html = `<div class="g3" style="margin-bottom:24px;">
+    <div class="metric-card"><div class="metric-lbl">Total collected</div><div class="metric-num" style="color:var(--green);">$${totalUSD.toFixed(0)}</div><div class="metric-hint">USD equiv. · paid bookings</div></div>
+    <div class="metric-card"><div class="metric-lbl">Pending / invoiced</div><div class="metric-num" style="color:var(--amber);">$${pendingUSD.toFixed(0)}</div><div class="metric-hint">USD equiv. · awaiting payment</div></div>
+    <div class="metric-card"><div class="metric-lbl">Total bookings</div><div class="metric-num">${allBk.length}</div><div class="metric-hint">${allBk.filter(b=>b.agency).length} agency · ${allBk.filter(b=>!b.agency).length} individual</div></div>
+  </div>`;
+
+  // Revenue per room
+  html += `<div class="section-title">Revenue per room</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:24px;">
+  ${SPACES.map(s=>{
+    const rb = allBk.filter(b=>b.spaceId===s.id);
+    const rev = rb.reduce((sum,b)=>sum+(b.amount/CURRENCIES[b.currency].rate),0);
+    return `<div class="card-flat" style="display:flex;align-items:center;gap:10px;">
+      <span style="font-size:22px;">${s.icon}</span>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.name}</div>
+        <div style="font-size:11px;color:var(--text3);">${rb.length} booking${rb.length!==1?'s':''}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div style="font-family:var(--mono);font-size:13px;font-weight:600;color:var(--green);">$${rev.toFixed(0)}</div>
+        <div style="font-size:10px;color:var(--text3);">USD</div>
+      </div>
+    </div>`;
+  }).join('')}
+  </div>`;
+
+  // Fairness queue
+  const sorted = [...users].sort((a,b)=>fairness(b)-fairness(a));
+  html += `<div class="g2" style="margin-bottom:24px;">
+  <div>
+    <div class="section-title">Allocation queue (fairness)</div>
+    <div class="card" style="padding:0;">
+    ${sorted.map((u,i)=>{
+      const f=fairness(u);
+      const active=activeBookings(u.id).length;
+      const lim=ROLE_CFG[u.role].limit;
+      return `<div class="alloc-row" style="padding:12px 16px;">
+        <div style="font-size:13px;color:var(--text3);font-family:var(--mono);width:20px;">${i+1}</div>
+        <div style="width:36px;height:36px;border-radius:50%;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;">${u.avatar}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="flex" style="flex-wrap:wrap;gap:5px;margin-bottom:2px;">
+            <span style="font-weight:500;font-size:13px;">${u.name}</span>
+            <span class="badge badge-${u.role}">${u.role}</span>
+          </div>
+          <div style="font-size:11px;color:var(--text3);">${active}/${lim===999?'∞':lim} bookings</div>
+          <div style="margin-top:4px;display:flex;align-items:center;gap:8px;">
+            <div class="fairness-track" style="flex:1;max-width:100px;"><div class="fairness-fill" style="width:${Math.round(f*100)}%;background:${fairnessColor(f)};"></div></div>
+            <span style="font-size:11px;color:${fairnessColor(f)};">${Math.round(f*100)}%</span>
+          </div>
+        </div>
+      </div>`;
+    }).join('')}
+    </div>
+  </div>
+
+  <!-- Space live status -->
+  <div>
+    <div class="section-title">Space live status</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+    ${SPACES.map(s=>{
+      const bk = bookings.find(b=>b.spaceId===s.id&&b.status==='active');
+      const booker = bk?users.find(u=>u.id===bk.userId):null;
+      const rel = releasedPool.find(r=>r.spaceId===s.id&&r.status==='available');
+      return `<div class="card-flat" style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:20px;">${s.icon}</span>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:500;">${s.name}</div>
+          <div style="font-size:11px;color:var(--text3);">Cap ${s.cap} · $${s.rateUSD}/hr</div>
+          ${booker?`<div style="font-size:11px;color:var(--text2);margin-top:1px;">${booker.name}${bk.agency?' · '+bk.agency:''}</div>`:''}
+        </div>
+        ${rel?`<span class="badge badge-released">Released</span>`:`<span class="badge ${bk?'badge-booked':'badge-available'}">${bk?'booked':'free'}</span>`}
+      </div>`;
+    }).join('')}
+    </div>
+  </div>
+  </div>`;
+
+  // Full booking history table
+  const payBadge = ps => ps==='paid'?`<span class="badge badge-paid">Paid</span>`:ps==='invoice'?`<span class="badge badge-invoice">Invoice</span>`:ps==='refunded'?`<span class="badge badge-completed">Refunded</span>`:`<span class="badge badge-pending">Pending</span>`;
+  const pmIcon = pm => ({card:'💳',mobile:'📱',bank:'🏦',invoice:'🧾'})[pm]||'—';
+
+  html += `<div class="section-title">Booking history & payment tracker</div>
+  <div class="card" style="overflow-x:auto;padding:0;margin-bottom:24px;">
+    <table style="width:100%;border-collapse:collapse;font-size:12px;">
+      <thead><tr style="border-bottom:1px solid var(--border);background:var(--bg3);">
+        ${['Booking ID','Room','Agency / User','Date','Period','Amount','Method','Pay Status','Status','Actions']
+          .map(h=>`<th style="padding:9px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--text2);letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap;">${h}</th>`).join('')}
+      </tr></thead>
+      <tbody>
+      ${allBk.length===0
+        ?`<tr><td colspan="10" style="padding:24px;text-align:center;color:var(--text3);">No bookings yet</td></tr>`
+        :allBk.sort((a,b)=>(b.bookedAt||b.date).localeCompare(a.bookedAt||a.date)).map(b=>{
+          const s=SPACES.find(x=>x.id===b.spaceId);
+          const u=users.find(x=>x.id===b.userId);
+          const cfg=BK_TYPES[b.bkType||'hourly'];
+          const period=`${b.duration} ${b.duration===1?cfg.label:cfg.plural}`;
+          const stBadge = b.status==='active'?`<span class="badge badge-active">Active</span>`:b.status==='completed'?`<span class="badge badge-completed">Completed</span>`:b.status==='released'?`<span class="badge badge-released">Released</span>`:`<span class="badge badge-booked">Cancelled</span>`;
+          return `<tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 12px;font-family:var(--mono);font-size:11px;color:var(--accent);">${b.id}</td>
+            <td style="padding:9px 12px;">${s?.icon} ${s?.name}</td>
+            <td style="padding:9px 12px;"><div style="font-weight:500;">${b.agency||u?.name}</div>${b.agency?`<div style="font-size:10px;color:var(--text3);">${u?.name}</div>`:''}</td>
+            <td style="padding:9px 12px;color:var(--text2);white-space:nowrap;">${b.date}</td>
+            <td style="padding:9px 12px;color:var(--text2);">${period}</td>
+            <td style="padding:9px 12px;font-family:var(--mono);font-weight:600;color:var(--green);">${fmtMoney(b.amount,b.currency)}</td>
+            <td style="padding:9px 12px;">${pmIcon(b.payMethod)} <span style="font-size:11px;color:var(--text2);">${PAY_CFG[b.payMethod]?.label||'—'}</span></td>
+            <td style="padding:9px 12px;">${payBadge(b.payStatus)}</td>
+            <td style="padding:9px 12px;">${stBadge}</td>
+            <td style="padding:9px 12px;">
+              <div class="flex" style="gap:4px;">
+                ${b.payStatus==='pending'&&b.status!=='released'?`<button class="btn btn-xs" style="color:var(--green);border-color:rgba(62,207,142,0.3);" onclick="markPaid('${b.id}')">Mark paid</button>`:''}
+                ${b.status==='active'?`<button class="btn btn-xs" onclick="markCompleted('${b.id}')">Complete</button>`:''}
+              </div>
+            </td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+  </div>`;
+
+  document.getElementById('page-admin').innerHTML = html;
+}
+
+function markPaid(id) {
+  const b=bookings.find(x=>x.id===id);
+  if(b){b.payStatus='paid';toast(`✓ ${id} marked as paid`);renderAdmin();}
+}
+function markCompleted(id) {
+  const b=bookings.find(x=>x.id===id);
+  if(b){b.status='completed';toast(`✓ ${id} marked as completed`);renderAll();renderAdmin();}
+}
+
+// ── PAGE: USER MANAGEMENT ─────────────────────────────────────
+function renderUsers() {
+  if(currentUser.role!=='admin'){
+    document.getElementById('page-users').innerHTML=`<div class="empty"><div class="empty-icon">🔒</div>Admin access required.</div>`;
+    return;
+  }
+  let html=`<div class="flex-between" style="margin-bottom:20px;">
+    <div class="section-title" style="margin-bottom:0;">All users (${users.length})</div>
+    <button class="btn btn-primary" onclick="openAddUser()">+ Add user</button>
+  </div><div style="display:flex;flex-direction:column;gap:10px;">`;
+  users.forEach(u=>{
+    const f=fairness(u);
+    const active=activeBookings(u.id).length;
+    const lim=ROLE_CFG[u.role].limit;
+    const isSelf=u.id===currentUser.id;
+    html+=`<div class="card" style="padding:14px 18px;">
+      <div class="flex-between">
+        <div class="flex" style="gap:12px;">
+          <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;flex-shrink:0;">${u.avatar}</div>
+          <div>
+            <div style="font-weight:600;font-size:14px;">${u.name} ${isSelf?`<span style="font-size:11px;color:var(--text3);font-weight:400;">(you)</span>`:''}</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:1px;">${u.email||'<span style="color:var(--text3);">No email</span>'}</div>
+          </div>
+        </div>
+        <span class="badge badge-${u.role}">${u.role}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0;text-align:center;">
+        <div class="card-flat"><div style="font-size:10px;color:var(--text3);font-weight:600;margin-bottom:2px;">BOOKINGS</div><div style="font-size:14px;font-weight:600;">${active}<span style="font-size:11px;color:var(--text3);">/${lim===999?'∞':lim}</span></div></div>
+        <div class="card-flat"><div style="font-size:10px;color:var(--text3);font-weight:600;margin-bottom:2px;">FAIRNESS</div><div style="font-size:14px;font-weight:600;color:${fairnessColor(f)};">${Math.round(f*100)}%</div></div>
+        <div class="card-flat"><div style="font-size:10px;color:var(--text3);font-weight:600;margin-bottom:2px;">JOINED</div><div style="font-size:12px;font-weight:500;">${u.joined||'—'}</div></div>
+        <div class="card-flat"><div style="font-size:10px;color:var(--text3);font-weight:600;margin-bottom:2px;">STATUS</div><div style="font-size:12px;font-weight:600;color:var(--green);">Active</div></div>
+      </div>
+      <div class="flex-between">
+        <span style="font-size:11px;color:var(--text3);">Role: ${u.role} · ${ROLE_CFG[u.role].access.length} space types accessible</span>
+        <div class="flex" style="gap:6px;">
+          <button class="btn btn-sm" onclick="openEditUser('${u.id}')">Edit</button>
+          ${!isSelf?`<button class="btn btn-sm btn-danger" onclick="openDeleteUser('${u.id}')">Remove</button>`:''}
+        </div>
+      </div>
+    </div>`;
+  });
+  html+=`</div>`;
+  document.getElementById('page-users').innerHTML=html;
+}
+
+function openAddUser() {
+  document.getElementById('um-title').textContent='Add New User';
+  document.getElementById('um-sub').textContent='Fill in the details to create an account';
+  document.getElementById('um-save').textContent='Add User';
+  document.getElementById('um-id').value='';
+  document.getElementById('um-name').value='';
+  document.getElementById('um-email').value='';
+  document.getElementById('um-role').value='staff';
+  document.getElementById('um-err').innerHTML='';
+  openModal('user-modal');
+}
+
+function openEditUser(uid) {
+  const u=users.find(x=>x.id===uid);
+  document.getElementById('um-title').textContent='Edit User';
+  document.getElementById('um-sub').textContent=`Editing ${u.name}`;
+  document.getElementById('um-save').textContent='Save Changes';
+  document.getElementById('um-id').value=uid;
+  document.getElementById('um-name').value=u.name;
+  document.getElementById('um-email').value=u.email||'';
+  document.getElementById('um-role').value=u.role;
+  document.getElementById('um-err').innerHTML='';
+  openModal('user-modal');
+}
+
+function saveUser() {
+  const uid=document.getElementById('um-id').value;
+  const name=document.getElementById('um-name').value.trim();
+  const email=document.getElementById('um-email').value.trim();
+  const role=document.getElementById('um-role').value;
+  if(!name){document.getElementById('um-err').innerHTML=`<div class="err-box">Please enter a full name.</div>`;return;}
+  if(!email||!email.includes('@')){document.getElementById('um-err').innerHTML=`<div class="err-box">Please enter a valid email address.</div>`;return;}
+  if(uid){
+    const u=users.find(x=>x.id===uid);
+    u.name=name;u.email=email;u.role=role;u.avatar=makeAvatar(name);
+    if(uid===currentUser.id){currentUser.name=name;currentUser.role=role;currentUser.avatar=u.avatar;}
+    closeModal('user-modal');toast(`✓ ${name} updated`);renderAll();renderUsers();
+  } else {
+    const newId='u'+Date.now();
+    const pwd=genPassword();
+    const link=genInviteLink(newId);
+    users.push({id:newId,name,email,role,avatar:makeAvatar(name),joined:today()});
+    closeModal('user-modal');
+    document.getElementById('inv-name').textContent=`${name} has been added!`;
+    document.getElementById('inv-link').textContent=link;
+    document.getElementById('inv-pwd').textContent=pwd;
+    document.getElementById('inv-badge').innerHTML=`<span class="badge badge-${role}">${role}</span>`;
+    openModal('invite-modal');
+    toast(`✓ ${name} added as ${role}`);
+    renderAll();
+  }
+}
+
+function openDeleteUser(uid) {
+  const u=users.find(x=>x.id===uid);
+  document.getElementById('del-uid').value=uid;
+  document.getElementById('del-sub').textContent=`Remove ${u.name}? All their active bookings will be cancelled.`;
+  openModal('delete-modal');
+}
+function confirmDeleteUser() {
+  const uid=document.getElementById('del-uid').value;
+  const u=users.find(x=>x.id===uid);
+  bookings.filter(b=>b.userId===uid&&b.status==='active').forEach(b=>b.status='cancelled');
+  users=users.filter(x=>x.id!==uid);
+  closeModal('delete-modal');toast(`${u.name} removed`);renderAll();renderUsers();
+}
+
+// ── USER SWITCH ───────────────────────────────────────────────
+function switchUser(id) {
+  currentUser=users.find(u=>u.id===id);
+  selectedSpaceId=null;
+  if((currentPage==='admin'||currentPage==='users')&&currentUser.role!=='admin'){
+    navigate('book',document.querySelector('.nav-item'));
+  } else {
+    renderAll();
+    navigate(currentPage, document.querySelector(`.nav-item.active`));
+  }
+}
+
+// ── RENDER ALL ────────────────────────────────────────────────
+function renderAll() { renderSidebar(); renderMetrics(); }
+
+// ── INIT ──────────────────────────────────────────────────────
+document.querySelectorAll('.modal-bg').forEach(bg=>{
+  bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('open');});
+});
+document.addEventListener('DOMContentLoaded',()=>{
+  const d=document.getElementById('bk-date');
+  if(d)d.min=today();
+});
+renderAll();
+renderBook();
+</script>
+</body>
+</html>
